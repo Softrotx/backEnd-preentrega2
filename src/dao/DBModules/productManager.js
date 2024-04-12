@@ -35,24 +35,19 @@ class ProductManager {
     // page
     // query
     // sort
-
     try {
       console.log(data)
-      const {limit, page, query, sort} = data
-      const limite = limit ? limit : 10
-     
-      const pagina = page ? page : 1
-       console.log(`${limite}, ${pagina}`)
+      const { limit, page, category, sort } = data
+      const limitProducts = limit ? limit : 10
+      const pageSelected = page ? page : 1
 
-      const productos = await Products.paginate({}, { limit:limite, page:pagina, lean: true })
+      console.log(`${limitProducts}, ${pageSelected}`)
 
-      await productos.aggregate([
-        {
-          $match: {query}
-        },
-        {$sort: {price:sort}}
-
-      ])
+      if (category) {
+        const productos = await Products.paginate({ category }, { limit: limitProducts, page: pageSelected, sort: sort ? { price: sort } : undefined, lean: true })
+        return productos
+      }
+      const productos = await Products.paginate({ }, { limit: limitProducts, page: pageSelected, sort: sort ? { price: sort } : undefined, lean: true })
       return productos
 
     }

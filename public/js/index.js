@@ -18,7 +18,7 @@ socket.on('message', data => {
     const {user, msg} = data
 
     const p = document.createElement('p');
-    p.textContent = `${user} dice: ${msg}`;
+    p.textContent = `Cliente${user}: ${msg}`;
     messageLogs.appendChild(p);
     messageLogs.scrollTop =messageLogs.scrollHeight
 
