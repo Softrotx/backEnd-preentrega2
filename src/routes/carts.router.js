@@ -47,7 +47,7 @@ router.get('/:cid', async (req, res) => {
 
 })
 
-router.post('/:cid/product/:pid', async (req, res) => {
+router.post('/:cid/products/:pid', async (req, res) => {
     try {
         const cartId = req.params.cid
         const productId = req.params.pid
@@ -68,13 +68,81 @@ router.post('/:cid/product/:pid', async (req, res) => {
     }
     catch (err) {
         throw err
+    }
+})
+
+router.put('/:cid/products/:pid', async (req, res) => {
+    try {
+        const cartId = req.params.cid
+        const productId = req.params.pid
+        const {quantity} = req.body
+        if (productId.length !== 24 || cartId.length !== 24) {
+            res.status(400).json({ error: "Invalid ID format" })
+            return
+        }
+        const CartManager = req.app.get('CartManager')
+        const ProductManager = req.app.get('ProductManager')
+        const product = await ProductManager.getProductById(productId)
+        if (!product) {
+            res.status(400).json("producto no encontrado")
+            return
+        }
+        const productToCart = await CartManager.updateCart(cartId, productId, quantity)
+
+        res.json(productToCart)
+    }
+    catch (err) {
+        throw err
+    }
+})
+
+router.delete('/:cid/products/:pid', async (req, res) => {
+    console.log('hola mundo')
+    try{
+        const cid = req.params.cid
+        const pid = req.params.pid
+        console.log({cid,pid})
+        if (pid.length !== 24 || cid.length !== 24) {
+            res.status(400).json({ error: "Invalid ID format" })
+            return
+        }
+        const CartManager = req.app.get('CartManager')
+        const productoEliminado = await CartManager.cartCleaner(cid, pid)
+
+        res.json(productoEliminado)
+
+
+
+
+    }
+    catch(err){
+        console.log(err)
 
     }
 
+})
+router.delete('/:cid/', async (req, res) => {
+    try{
+        const cid = req.params.cid
+        if (cid.length !== 24) {
+            res.status(400).json({ error: "Invalid ID format" })
+            return
+        }
+        const CartManager = req.app.get('CartManager')
+        const cart = await CartManager.cartCleaner(cid)
 
+        res.json(cart)
+
+
+
+
+    }
+    catch(err){
+        console.log(err)
+
+    }
 
 })
-
 
 
 

@@ -7,7 +7,16 @@ router.get('/', async (req, res) => {
     try {
         const ProductManager = req.app.get('ProductManager')
         const products = await ProductManager.getProducts(req.query)
-        res.json(products)
+        if (products) {
+            if(products.hasPrevPage){
+                console.log(req.query.page)
+                //pendiente . agregar link previo y siguiente
+                res.json([{ status: 'Success' }, products])
+
+            }
+            res.json([{ status: 'Success' }, products])
+
+        }
     }
     catch (err) {
         console.error("Error al procesar solicitud")
@@ -41,9 +50,13 @@ router.get('/:pid', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const ProductManager = req.app.get('ProductManager')
+
         const nuevoProducto = await ProductManager.addProduct(req.body)
+        console.log(nuevoProducto)
         if (nuevoProducto) {
             res.json(nuevoProducto)
+
+
             return
         }
         res.json({ status: "Error!", Message: "El producto no pudo ser agregado" })

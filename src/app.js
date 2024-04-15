@@ -43,7 +43,7 @@ const main = async () => {
     // await carrito.iniciar()
     app.set('ProductManager', productos)
     app.set('CartManager', carrito)
-    const httpServer = app.listen(8080, () => {
+    const httpServer = await app.listen(8080, () => {
         console.log('servidor listo')
     })
     // crear un servidor para WS

@@ -35,20 +35,24 @@ class ProductManager {
     // page
     // query
     // sort
+    
     try {
-      console.log(data)
+      const myCustomLabels = {
+        docs: 'payload'
+      };
       const { limit, page, category, sort } = data
       const limitProducts = limit ? limit : 10
       const pageSelected = page ? page : 1
+      const productos = await Products.paginate(category?{category}:{}, { limit: limitProducts, page: pageSelected, customLabels: myCustomLabels, sort: sort ? { price: sort } : undefined, lean: true }, (err, result) => {
+        if (err){
+          console.log(err) 
+          return err
+        }
+        return result
+      })
 
-      console.log(`${limitProducts}, ${pageSelected}`)
-
-      if (category) {
-        const productos = await Products.paginate({ category }, { limit: limitProducts, page: pageSelected, sort: sort ? { price: sort } : undefined, lean: true })
-        return productos
-      }
-      const productos = await Products.paginate({ }, { limit: limitProducts, page: pageSelected, sort: sort ? { price: sort } : undefined, lean: true })
       return productos
+
 
     }
     catch (err) {

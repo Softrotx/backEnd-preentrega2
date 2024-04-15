@@ -1,5 +1,7 @@
 
-const { Carts } = require('../models');
+const { CartsModel } = require('../models');
+
+const { Carts, ProductsOnCart } = CartsModel
 
 class CartManager {
 
@@ -30,54 +32,80 @@ class CartManager {
       throw (err)
     }
   }
-  async updateCart(cid, pid) {
+  async updateCart(cid, pid, quantity) {
     try {
-        const cart = await Carts.findById(cid);
-
-        const productOnCartIndex = cart.products.findIndex(product => product.id === pid);
-        console.log(`productOnCart ${productOnCartIndex}`);
-
-        if (productOnCartIndex >= 0) {
-            // Si el producto ya está en el carrito, actualiza la cantidad
+      const cart = await Carts.findById(cid);
+      if (cart) {
+        const foundProduct = await cart.products.find(product => product.productId === pid)
+        console.log(foundProduct)
+        if (foundProduct) {
+          if (quantity === undefined) {
             const updatedCart = await Carts.findOneAndUpdate(
-                { _id: cid, "products._id": pid },
-                { $inc: { "products.$.quantity": 1 } },
-                { new: true }
-            );
-            console.log({ status: "Success!", message: "El carrito ha sido actualizado correctamente" });
-            return updatedCart;
-        } else {
-            // Si el producto no está en el carrito, agrégalo
-            cart.products.push({ _id: pid, quantity: 1 });
-            const updatedCart = await Carts.findByIdAndUpdate(cid, cart);
-            console.log({ status: "Success!", message: "El carrito ha sido actualizado correctamente" });
-            return updatedCart;
+              { _id: cid, "products.productId": pid },
+              { $inc: { "products.$.quantity": 1 } },
+              { new: true }
+            )
+            return { status: "Success!", message: "El carrito ha sido actualizado correctamente", updatedCart };
+
+          }
+          const updatedCart = await Carts.findOneAndUpdate(
+            { _id: cid, "products.productId": pid },
+            { $set: { "products.$.quantity": quantity } },
+            { new: true }
+          )
+          return { status: "Success!", message: "El carrito ha sido actualizado correctamente", updatedCart };
         }
+
+        const newProduct = new ProductsOnCart({
+          productId: pid, quantity: 1
+        })
+        cart.products.push(newProduct)
+        cart.save()
+
+        console.log({ status: "Success!", message: "El carrito ha sido actualizado correctamente" });
+        return cart;
+
+      }
+
+
+
     } catch (err) {
-        console.error("Error updating cart:", err);
-        throw err; // Propagar el error para que sea manejado por el código que llama a esta función
+      console.error("Error updating cart:", err);
+      throw err; // Propagar el error para que sea manejado por el código que llama a esta función
     }
-}
-  // async deletecart(id) {
-  //   try {
-  //     const foundcartIdx = this.#carts.findIndex(cart => cart.id === id)
-  //     if (!foundcartIdx < 0) {
-  //       this.#carts.splice(foundcartIdx, 1)
-  //       return
-  //     }
-  //     console.log({ error: "carto no encontrado" })
-  //     return
+  }
+
+  async cartCleaner(cid, pid) {
+    try {
+      const cart = await Carts.findById(cid);
+      if (cart) {
+
+        if (!pid === undefined) {
+          const foundProduct = await cart.products.find(product => product.productId === pid)
+          if (foundProduct) {
+            await Carts.findByIdAndUpdate(cid, { $pull: { products: { productId: pid } } })
+            return `Producto ID ${pid} eliminado del carrito ${cid}`
+
+          } else {
+            return `el producto ${pid} no existe en el carrito ${cid}`
+          }
+
+        }
+        await Carts.findByIdAndUpdate(cid, { $set: { products: [] } })
+        return `Carrito ID ${cid} vaciado`
+
+      }
+      return `el carrito ${cid} no existe`
+    }
 
 
-  //   }
+
+    catch (err) {
+      console.log('error al eliminar el carto. error :' + err)
+    }
 
 
-  //   catch {
-  //     console.log('error al eliminar el carto')
-  //   }
-
-
-  // }
+  }
 
 };
 

@@ -1,11 +1,17 @@
 const { mongoose } = require("mongoose");
 
-
-
-const cartsSchema = mongoose.Schema({
-    products: [{
-        quantity:{type:Number,require:true}
-    }],
+const childSchema = mongoose.Schema({
+    productId: { type: String, require: true },
+    quantity: { type: Number, require: true }
 });
 
-module.exports= mongoose.model('carts', cartsSchema);
+const ProductsOnCart = mongoose.model('ProductsOnCart', childSchema, 'productsOnCart');
+
+const cartsSchema = mongoose.Schema({
+    products: [childSchema]
+});
+const Carts = mongoose.model('Carts', cartsSchema, 'carts');
+module.exports = {
+    ProductsOnCart,
+    Carts
+}
