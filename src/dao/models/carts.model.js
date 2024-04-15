@@ -1,7 +1,7 @@
 const { mongoose } = require("mongoose");
 
 const childSchema = mongoose.Schema({
-    productId: { type: String, require: true },
+    productId: { type: mongoose.Schema.Types.ObjectId, require: true, ref:"Products" },
     quantity: { type: Number, require: true }
 });
 
@@ -15,3 +15,4 @@ module.exports = {
     ProductsOnCart,
     Carts
 }
+
