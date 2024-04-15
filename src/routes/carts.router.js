@@ -21,6 +21,7 @@ router.post('/', async (req, res) => {
     }
 })
 
+// obtener el carrito asociado a un ID
 router.get('/:cid', async (req, res) => {
     try {
         const cartId = req.params.cid
@@ -47,6 +48,31 @@ router.get('/:cid', async (req, res) => {
 
 })
 
+router.put('/:cid', async (req, res) => {
+    try {
+        const cartId = req.params.cid
+        const body = req.body
+        if (cartId.length !== 24) {
+            // HTTP 400 => hay un error en el request o alguno de sus parámetros
+            res.status(400).json({ error: "Invalid ID format" })
+            return
+        }
+        const CartManager = req.app.get('CartManager')
+        const productsOnCart = await CartManager.updateCart(cartId, body)
+
+        res.json(productsOnCart)
+
+
+
+    }
+    catch (err) {
+        res.status(500).json({ error: "Internal Server Error" });
+
+    }
+
+
+})
+
 router.post('/:cid/products/:pid', async (req, res) => {
     try {
         const cartId = req.params.cid
@@ -62,9 +88,9 @@ router.post('/:cid/products/:pid', async (req, res) => {
             res.status(400).json("producto no encontrado")
             return
         }
-        const productToCart = await CartManager.updateCart(cartId, productId)
+        const productOnCart = await CartManager.addProductOnCart(cartId, productId)
 
-        res.json(productToCart)
+        res.json(productOnCart)
     }
     catch (err) {
         throw err
@@ -87,7 +113,7 @@ router.put('/:cid/products/:pid', async (req, res) => {
             res.status(400).json("producto no encontrado")
             return
         }
-        const productToCart = await CartManager.updateCart(cartId, productId, quantity)
+        const productToCart = await CartManager.addProductOnCart(cartId, productId, quantity)
 
         res.json(productToCart)
     }
