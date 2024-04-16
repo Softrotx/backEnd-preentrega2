@@ -25,7 +25,7 @@ class CartManager {
 
       if (foundcart) {
 
-        return (foundcart)
+        return foundcart
       }
       console.log("Not Found")
     }
@@ -38,14 +38,13 @@ class CartManager {
     try {
       const cart = await Carts.findById(cid)
       if (cart) {
-        const foundProduct = await cart.products.find(product => product.productId === pid)
-        console.log(foundProduct)
+        const foundProduct = await cart.products.find((product) => product.productId.equals(pid))
+        console.log("producto encontrado?: " + foundProduct + " " + "id " + pid)
         if (foundProduct) {
           if (quantity === undefined) {
             const updatedCart = await Carts.findOneAndUpdate(
               { _id: cid, "products.productId": pid },
-              { $inc: { "products.$.quantity": 1 } },
-              { new: true }
+              { $inc: { "products.$.quantity": 1 } }
             )
             return { status: "Success!", message: "El carrito ha sido actualizado correctamente", updatedCart }
 

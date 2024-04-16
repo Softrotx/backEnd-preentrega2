@@ -4,15 +4,12 @@ const router = Router();
 router.post('/', async (req, res) => {
     try {
         const CartManager = req.app.get('CartManager')
-        const productToCart = await CartManager.addCart()
-        console.log(productToCart)
-        if (productToCart) {
-            res.json({ status: "success!", Message: `El Carrito ID: ${productToCart.id} fue correctamente creado` })
+        const createdCart = await CartManager.addCart()
+        if (createdCart) {
+            res.json({ status: "success!", Message: `El Carrito ID: ${createdCart.id} fue correctamente creado`, createdCart })
             return
         }
         res.json({ status: "Error!", Message: "El Carrito no pudo ser creado" })
-
-
 
     }
     catch (err) {
@@ -77,6 +74,7 @@ router.post('/:cid/products/:pid', async (req, res) => {
     try {
         const cartId = req.params.cid
         const productId = req.params.pid
+        console.log(productId)
         if (productId.length !== 24 || cartId.length !== 24) {
             res.status(400).json({ error: "Invalid ID format" })
             return
@@ -89,6 +87,7 @@ router.post('/:cid/products/:pid', async (req, res) => {
             return
         }
         const productOnCart = await CartManager.addProductOnCart(cartId, productId)
+        console.log("se agregó el producto correctamente")
 
         res.json(productOnCart)
     }

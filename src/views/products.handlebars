@@ -1,12 +1,14 @@
 <div>
-    {{#each products.payloads}}
-    <div class="producto">
+    {{#each products.payload}}
+    <div id="productContainer"class="producto">
         <img src={{thumbnails}} alt="" srcset="">
         <h2>{{title}}</h2>
         <div class="boxOfSell">
+            <p id="productId" >{{_id}}</p>
             <p> Precio: {{price}} CLP</p>
             <p> Disponibles: {{stock}} unidades </p>
-            <button id= "btnComprar" type="button">Comprar</button>
+            <button id="btnAddToCart">add to Cart</button>
+            
         </div>
 
     </div>
